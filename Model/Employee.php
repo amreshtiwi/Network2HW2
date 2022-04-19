@@ -7,7 +7,7 @@ $db = "EmployeesDB";
 
 $con = new PDO("mysql:host={$hostname};dbname={$db}", $username, $password);
 
-$sql2 = "SELECT * FROM EMPLOYEE WHERE adminflag != 0";
+$sql2 = "SELECT * FROM EMPLOYEE WHERE adminflag = 0";
 $stmt = $con->prepare( $sql2 );
 $stmt->execute();
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
