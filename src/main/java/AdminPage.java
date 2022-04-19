@@ -1,9 +1,15 @@
+
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.hw2network2;
+
 
 /**
  *
@@ -14,8 +20,12 @@ public class AdminPage extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
+    
+    public int numberOfEmployee = 0;
     public AdminPage() {
         initComponents();
+        String data = send_GET("0");
+        Display_Employee(data);
     }
 
     /**
@@ -34,6 +44,7 @@ public class AdminPage extends javax.swing.JFrame {
         nextBtn = new javax.swing.JButton();
         backBtn = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        note = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         idTxtF = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -52,9 +63,19 @@ public class AdminPage extends javax.swing.JFrame {
 
         nextBtn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         nextBtn.setText("Next");
+        nextBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextBtnActionPerformed(evt);
+            }
+        });
 
         backBtn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         backBtn.setText("Back");
+        backBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backBtnActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
         jLabel1.setText("Display Employee");
@@ -74,9 +95,14 @@ public class AdminPage extends javax.swing.JFrame {
                 .addComponent(nextBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(42, 42, 42))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(109, 109, 109)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(109, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(109, 109, 109)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(48, 48, 48)
+                        .addComponent(note, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -89,7 +115,9 @@ public class AdminPage extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nextBtn)
                     .addComponent(backBtn))
-                .addContainerGap(174, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 136, Short.MAX_VALUE)
+                .addComponent(note, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
         );
 
         jTabbedPane1.addTab("Display", jPanel1);
@@ -138,15 +166,15 @@ public class AdminPage extends javax.swing.JFrame {
                     .addComponent(idTxtF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(searchBtn))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(searchBtn)
-                        .addComponent(deleteBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(imgLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(94, Short.MAX_VALUE))
+                .addContainerGap(58, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Search/Delete", jPanel2);
@@ -165,6 +193,65 @@ public class AdminPage extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void nextBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextBtnActionPerformed
+        // TODO add your handling code here:
+        String startFrom =  numberOfEmployee+"";
+        String data = send_GET(startFrom);
+        Display_Employee(data);
+    }//GEN-LAST:event_nextBtnActionPerformed
+
+    private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
+        // TODO add your handling code here:
+        numberOfEmployee = numberOfEmployee-5;
+        if(numberOfEmployee < 0){
+            numberOfEmployee = 0;
+        }else{
+            String startFrom =  numberOfEmployee+"";
+            String data = send_GET(startFrom);
+            Display_Employee(data);
+        }
+    }//GEN-LAST:event_backBtnActionPerformed
+
+    public void Display_Employee(String data){
+        if(data.equals("NOT")){
+            employeesTA.append("no more data");
+        }else{
+            String employees [] = data.split("\\|&&\\|");
+            employeesTA.setText("");
+            for(int i = 0 ;  i<employees.length; i++){
+                if(employees.equals("")){
+                    continue;
+                }else{
+                    numberOfEmployee = numberOfEmployee+1;
+                    String employeeInfo[] = employees[i].split("\\|&\\|");
+                    employeesTA.append(numberOfEmployee+ "- "+ employeeInfo[0] + " , "+employeeInfo[1] + " , "+employeeInfo[2] + " , " +employeeInfo[3]);
+                }
+            }
+        }
+
+    }
+    public String send_GET(String startFrom){
+        DataInputStream dis;
+        String urlString = "http://localhost/Net2HW2/Model/Employee.php?startFrom=";
+        System.err.println(urlString);
+        try {
+            URL u = new URL(urlString);
+            this.note.setText("GET: sending to " + urlString);
+
+            dis = new DataInputStream(u.openConnection().getInputStream());
+            int b;
+            String SS = "";
+            URLConnection myConn = u.openConnection();
+            InputStream is = myConn.getInputStream();
+            while ((b = is.read()) != -1) {
+                    SS = SS + (char) b;
+            }
+            return SS;
+        } catch (Exception e) {
+            this.note.setText("Faild: exception");
+            return null;
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -217,6 +304,7 @@ public class AdminPage extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JButton nextBtn;
+    private javax.swing.JTextField note;
     private javax.swing.JButton searchBtn;
     // End of variables declaration//GEN-END:variables
 }

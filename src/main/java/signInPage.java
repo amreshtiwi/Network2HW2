@@ -1,3 +1,9 @@
+
+import java.io.BufferedOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -13,6 +19,7 @@ public class signInPage extends javax.swing.JFrame {
     /**
      * Creates new form signInPage
      */
+    String contentStr = "application/x-www-form-urlencoded";
     public signInPage() {
         initComponents();
     }
@@ -31,7 +38,8 @@ public class signInPage extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         SignInBtn = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        PasswordSignIn = new javax.swing.JTextField();
+        showProblemLbl = new javax.swing.JLabel();
+        PasswordSignIn = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -50,6 +58,8 @@ public class signInPage extends javax.swing.JFrame {
 
         jLabel3.setText("Password :");
 
+        showProblemLbl.setForeground(new java.awt.Color(255, 0, 0));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -63,32 +73,37 @@ public class signInPage extends javax.swing.JFrame {
                         .addGap(126, 126, 126)
                         .addComponent(SignInBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(72, 72, 72)
+                        .addComponent(showProblemLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
                         .addGap(19, 19, 19)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(IDSignIn)
-                            .addComponent(PasswordSignIn, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE))))
-                .addContainerGap(82, Short.MAX_VALUE))
+                            .addComponent(IDSignIn, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)
+                            .addComponent(PasswordSignIn))))
+                .addContainerGap(71, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(47, 47, 47)
+                .addGap(28, 28, 28)
+                .addComponent(showProblemLbl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(IDSignIn, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(PasswordSignIn, javax.swing.GroupLayout.DEFAULT_SIZE, 26, Short.MAX_VALUE))
-                .addGap(10, 10, 10)
+                    .addComponent(PasswordSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(SignInBtn)
-                .addContainerGap(71, Short.MAX_VALUE))
+                .addContainerGap(84, Short.MAX_VALUE))
         );
 
         pack();
@@ -96,6 +111,58 @@ public class signInPage extends javax.swing.JFrame {
 
     private void SignInBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignInBtnActionPerformed
         // TODO add your handling code here:
+        if(IDSignIn.getText().isEmpty() | PasswordSignIn.getText().isEmpty()){
+            showProblemLbl.setText("ID or password is Empty");
+        }else{
+            InputStream is;
+            String urlStr ="http://localhost/Net2HW2/Model/Employee.php";
+            String IDValue = IDSignIn.getText();
+            String passwordValue = PasswordSignIn.getText();
+            String signInValue [] ;
+            
+            try {
+                URL myURL = new URL(urlStr);
+                URLConnection myConn = myURL.openConnection();
+                myConn.setDoOutput(true);
+                myConn.setDoInput(true);
+                myConn.setRequestProperty("Content-Type", contentStr);
+                myConn.setUseCaches(false);
+                BufferedOutputStream out = new BufferedOutputStream(myConn.getOutputStream());
+                out.write(("ID="+IDValue+"&password="+passwordValue).getBytes());//"ACTION=add&NUMPTS=2&DATA=L0001\nL0002");
+                out.close();
+
+                //out.close();
+                String SS = "";
+                int b = -1;
+
+                String t = "";
+                is = myConn.getInputStream();
+                while ((b = is.read()) != -1) {
+                        SS = SS + (char) b;
+                }
+                // this.jTextField1.setText(SS);
+                //signInValue = SS;
+                
+                signInValue = SS.split("\\|&\\|");
+                if(signInValue[0].equals("ADMIN")){
+                            String [] args = null;
+                            AdminPage.main(args);
+                            this.dispose();
+                }else if(signInValue[0].equals("EMPLOYEE")){
+                            String [] args = null;
+                            args[0]=IDValue;
+                            EmployeePage.main(args);
+                            this.dispose();
+                }else{
+                    showProblemLbl.setText("ID or password is not correct");
+                }
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                showProblemLbl.setText("Faild: exception");
+            }
+            
+            
+        }
     }//GEN-LAST:event_SignInBtnActionPerformed
 
     /**
@@ -135,10 +202,11 @@ public class signInPage extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField IDSignIn;
-    private javax.swing.JTextField PasswordSignIn;
+    private javax.swing.JPasswordField PasswordSignIn;
     private javax.swing.JButton SignInBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel showProblemLbl;
     // End of variables declaration//GEN-END:variables
 }
